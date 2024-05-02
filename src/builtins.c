@@ -13,6 +13,7 @@
 #include "params.h"
 #include "vars.h"
 #include "wait.h"
+#include <ctype.h>
 
 /** Gets the real fd of a pseudo redirect
  *
@@ -89,9 +90,13 @@ builtin_cd(struct command *cmd, struct builtin_redir const *redir_list)
       return -1;
     }
   }
-  /*TODO: Implement cd with arguments 
-   */
+  /*TODO: Implement cd with arguments */
+  target_dir = cmd->words[1];
+  //printf("Words[1]: %s\n", target_dir);
   chdir(target_dir);
+  //printf("chdir() return value: %d\n", change);
+  vars_set("PWD", target_dir);
+  //printf("PWD: %s\n", vars_get("PWD")); 
   return 0;
 }
 
@@ -110,8 +115,14 @@ static int
 builtin_exit(struct command *cmd, struct builtin_redir const *redir_list)
 {
   /* TODO: Set params.status to the appropriate value before exiting */
+  int exit_status = 0;
+  if (cmd->word_count == 1) {
+   exit_status = params.status; 
+  } else if (cmd->word_count == 2) {
+       exit_status = atoi(cmd->words[1]);
+  } else return -1;
   bigshell_exit();
-  return -1;
+  return exit_status;
 }
 
 /** exports variables to the environment
