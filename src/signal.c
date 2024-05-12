@@ -76,7 +76,7 @@ signal_ignore(int sig)
 {
   /* TODO set the signal disposition for signal back to its old state */
   //int reset = sigaction();
-  errno = ENOSYS; /* not implemented */
+  //errno = ENOSYS; /* not implemented */
   return -1;
 }
 

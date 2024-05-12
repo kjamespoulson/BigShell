@@ -85,6 +85,7 @@ jobs_remove_gid(pid_t pgid)
         free(jobs_joblist);
         jobs_joblist = 0;
       }
+      return 0;
     }
     if (++i == jobs_joblist_size) return -1;
   }
