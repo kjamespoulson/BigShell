@@ -13,7 +13,6 @@
 #include "params.h"
 #include "vars.h"
 #include "wait.h"
-#include <ctype.h>
 
 /** Gets the real fd of a pseudo redirect
  *
@@ -96,7 +95,7 @@ builtin_cd(struct command *cmd, struct builtin_redir const *redir_list)
   chdir(target_dir);
   //printf("chdir() return value: %d\n", change);
   vars_set("PWD", target_dir);
-  //printf("PWD: %s\n", vars_get("PWD")); 
+  //printf("PWD: %s\n", vars_get("PWD"));
   return 0;
 }
 
@@ -121,7 +120,9 @@ builtin_exit(struct command *cmd, struct builtin_redir const *redir_list)
   } else if (cmd->word_count == 2) {
        exit_status = atoi(cmd->words[1]);
   } else return -1;
+  printf("Exit Status: %d\n", exit_status);
   bigshell_exit();
+  //printf("Exit Status: %d\n", exit_status);
   return exit_status;
 }
 

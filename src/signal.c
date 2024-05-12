@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include <signal.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include "signal.h"
 
@@ -39,7 +40,12 @@ signal_init(void)
    * e.g. sigaction(SIGNUM, &new_handler, &saved_old_handler);
    *
    * */
-  errno = ENOSYS; /* not implemented */
+  int stop = sigaction(SIGTSTP, &ignore_action, &old_sigtstp);
+  int inter = sigaction(SIGINT, &ignore_action, &old_sigint);
+  int tou = sigaction(SIGTTOU, &ignore_action, &old_sigttou);
+  int ret_val = stop + inter + tou;
+  if (!ret_val) return ret_val;
+  //errno = ENOSYS; /* not implemented */
   return -1;
 }
 
@@ -53,7 +59,9 @@ int
 signal_enable_interrupt(int sig)
 {
   /* TODO set the signal disposition for signal to interrupt  */
-  errno = ENOSYS; /* not implemented */
+  int change = sigaction(sig, &interrupt_action, NULL);
+  if (!change) return change;
+  //errno = ENOSYS; /* not implemented */
   return -1;
 }
 
@@ -67,6 +75,7 @@ int
 signal_ignore(int sig)
 {
   /* TODO set the signal disposition for signal back to its old state */
+  //int reset = sigaction();
   errno = ENOSYS; /* not implemented */
   return -1;
 }
@@ -84,6 +93,11 @@ signal_restore(void)
    * e.g. sigaction(SIGNUM, &saved_old_handler, NULL);
    *
    * */
-  errno = ENOSYS; /* not implemented */
+  int stop = sigaction(SIGTSTP, &old_sigtstp, NULL);
+  int inter = sigaction(SIGINT, &old_sigint, NULL);
+  int tou = sigaction(SIGTTOU, &old_sigttou, NULL);
+  int ret_val = stop + inter + tou;
+  if (!ret_val) return ret_val;
+  //errno = ENOSYS; /* not implemented */
   return -1;
 }

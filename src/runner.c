@@ -61,7 +61,9 @@ do_variable_assignment(struct command const *cmd, int export_all)
   for (size_t i = 0; i < cmd->assignment_count; ++i) {
     struct assignment *a = cmd->assignments[i];
     /* TODO Assign */
-    /* TODO Export (if export_all != 0) */
+    vars_set(a->name, a->value);
+    /* TODO Export (if export_all != 0)*/
+    if (export_all != 0) vars_export(a->name);
   }
   return 0;
 }
@@ -342,9 +344,11 @@ run_command_list(struct command_list *cl)
   /* Declared here to preserve value across successive pipelined commands
    *  -1 means no pipe */
   int pipeline_fds[2] = {-1, -1};
+
   pid_t pipeline_pgid = 0; /* Process group id of current pipeline.
                               0 == unset */
   jid_t pipeline_jid = -1; /* Job id of current pipeline. -1 == unset */
+
 
   for (size_t i = 0; i < cl->command_count; ++i) {
     struct command *cmd = cl->commands[i];
@@ -401,8 +405,9 @@ run_command_list(struct command_list *cl)
     /* Fork if:
      *   Not a builtin, OR,
      *   Is a builtin, but isn't a foreground command */
-    if (/* TODO */ 1) {
+    if (!builtin || !is_fg) {
       /* TODO */
+      child_pid = fork(); 
     }
 
     if (child_pid == 0) {
@@ -458,7 +463,9 @@ run_command_list(struct command_list *cl)
         /* Redirect the two standard streams overrides IF they are not set to -1
          *   XXX This sets up pipeline redirection */
         /* TODO move stdin_override  -> STDIN_FILENO  if stdin_override >= 0 */
+        if (stdin_override >= 0) move_fd(stdin_override, STDIN_FILENO);
         /* TODO move stdout_override -> STDOUT_FILENO if stdin_override >= 0 */
+        if (stdout_override >= 0) move_fd(stdout_override, STDOUT_FILENO);
 
         /* Now handle the remaining redirect operators from the command. */
         if (do_io_redirects(cmd) < 0) err(1, 0);
@@ -478,10 +485,11 @@ run_command_list(struct command_list *cl)
          *    2) Searches for executable files in the PATH environment variable
          *
          *  XXX Note: cmd->words is a null-terminated array of strings. Nice!
-         */
+         */ 
+        execvp(cmd->words[0], cmd->words); 
 
         err(127, 0); /* Exec failure -- why might this happen? */
-        assert(0);   /* UNREACHABLE -- This should never be reached ABORT! */
+        assert(0);   /* UNREACHABLE -- This should never be reached ABORT! */ 
       }
     }
     assert(child_pid > 0);
