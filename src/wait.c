@@ -19,10 +19,13 @@ wait_on_fg_gid(pid_t pgid)
   /* TODO send the "continue" signal to the process group 'pgid'
    * XXX review kill(2)
    */
+  int old_fd = getpgrp();
+  kill(pgid, SIGCONT);
 
   if (isatty(STDIN_FILENO)) {
     /* TODO make 'pgid' the foreground process group
      * XXX review tcsetpgrp(3) */
+    tcsetpgrp(STDIN_FILENO, pgid);
   } else {
     switch (errno) {
       /* isatty() reports no-tty by setting errno to ENOTTY (and returning 0),
@@ -32,7 +35,6 @@ wait_on_fg_gid(pid_t pgid)
        */
       case ENOTTY:
         errno = 0;
-        break;
       default: /* EBADF, etc... (actual errors) */
         return -1;
     }
@@ -54,7 +56,7 @@ wait_on_fg_gid(pid_t pgid)
   for (;;) {
     /* Wait on ALL processes in the process group 'pgid' */
     int status;
-    pid_t res = waitpid(/* TODO */ 0, &status, 0);
+    pid_t res = waitpid(pgid, &status, 0);
     if (res < 0) {
       /* Error occurred (some errors are ok, see below)
        *
@@ -65,13 +67,16 @@ wait_on_fg_gid(pid_t pgid)
         errno = 0;
         if (WIFEXITED(last_status)) {
           /* TODO set params.status to the correct value */
+          params.status = WEXITSTATUS(last_status);
         } else if (WIFSIGNALED(last_status)) {
           /* TODO set params.status to the correct value */
+          params.status = 128 + WTERMSIG(last_status);
         }
 
         /* TODO remove the job for this group from the job list
          *  see jobs.h
          */
+        jobs_remove_gid(pgid);
         goto out;
       }
       goto err; /* An actual error occurred */
@@ -85,7 +90,7 @@ wait_on_fg_gid(pid_t pgid)
     /* TODO handle case where a child process is stopped
      *  The entire process group is placed in the background
      */
-    if (/* TODO */ 0) {
+    if (WIFSTOPPED(last_status)) {
       fprintf(stderr, "[%jd] Stopped\n", (intmax_t)jobs_get_jid(pgid));
       goto out;
     }
@@ -106,6 +111,7 @@ err:
      * Note: this will cause bigshell to receive a SIGTTOU signal.
      *       You need to also finish signal.c to have full functionality here
      */
+    tcsetpgrp(STDIN_FILENO, old_fd); 
   } else {
     switch (errno) {
       case ENOTTY:
@@ -141,7 +147,7 @@ wait_on_bg_jobs()
        * XXX make sure to do a nonblocking wait!
        */
       int status;
-      pid_t pid = waitpid(0, &status, 0);
+      pid_t pid = waitpid(pgid, &status, WNOHANG);
       if (pid == 0) {
         /* Unwaited children that haven't exited */
         break;

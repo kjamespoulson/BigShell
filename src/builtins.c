@@ -88,13 +88,16 @@ builtin_cd(struct command *cmd, struct builtin_redir const *redir_list)
       dprintf(get_pseudo_fd(redir_list, STDERR_FILENO), "cd: HOME not set\n");
       return -1;
     }
-  }
+    chdir(target_dir);
+  } else {
   /*TODO: Implement cd with arguments */
   target_dir = cmd->words[1];
   //printf("Words[1]: %s\n", target_dir);
   chdir(target_dir);
   //printf("chdir() return value: %d\n", change);
-  vars_set("PWD", target_dir);
+  }
+  char current[PATH_MAX];
+  vars_set("PWD", getcwd(current, sizeof(current)));
   //printf("PWD: %s\n", vars_get("PWD"));
   return 0;
 }
@@ -113,16 +116,16 @@ builtin_cd(struct command *cmd, struct builtin_redir const *redir_list)
 static int
 builtin_exit(struct command *cmd, struct builtin_redir const *redir_list)
 {
-  /* TODO: Set params.status to the appropriate value before exiting */
+  /* TODO: Set params.status to the appropriate value before exiting */ 
   int exit_status = 0;
   if (cmd->word_count == 1) {
-   exit_status = params.status; 
+    exit_status = params.status; 
+    //vars_set("$?", itoa(params.status));
   } else if (cmd->word_count == 2) {
-       exit_status = atoi(cmd->words[1]);
-  } else return -1;
-  printf("Exit Status: %d\n", exit_status);
+    params.status = atoi(cmd->words[1]);
+    exit_status = params.status;
+  } else return -1; 
   bigshell_exit();
-  //printf("Exit Status: %d\n", exit_status);
   return exit_status;
 }
 
@@ -163,6 +166,7 @@ builtin_unset(struct command *cmd, struct builtin_redir const *redir_list)
 {
   for (size_t i = 1; i < cmd->word_count; ++i) {
     /* TODO: Unset variables */
+    vars_unset(cmd->words[i]);
   }
   return 0;
 }

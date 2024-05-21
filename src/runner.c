@@ -41,9 +41,15 @@ expand_command_words(struct command *cmd)
 {
   for (size_t i = 0; i < cmd->word_count; ++i) {
     expand(&cmd->words[i]);
-  }
+  } 
   /* TODO Assignment values */
+  for (size_t i = 0; i < cmd->assignment_count; ++i) {
+    expand(&cmd->assignments[i]->value); 
+  }
   /* TODO I/O Filenames */
+  for (size_t i = 0; i < cmd->io_redir_count; ++i) {
+    expand(&cmd->io_redirs[i]->filename);
+  }
   return 0;
 }
 
@@ -103,20 +109,20 @@ get_io_flags(enum io_operator io_op)
   switch (io_op) {
     case OP_LESSAND: /* <& */
     case OP_LESS:    /* < */
-      flags = 0;     /* TODO */
+      flags = O_RDONLY;     /* TODO */
       break;
     case OP_GREATAND: /* >& */
     case OP_GREAT:    /* > */
-      flags = 0;      /* TODO */
+      flags = O_RDONLY | O_CREAT;      /* TODO */
       break;
     case OP_DGREAT: /* >> */
-      flags = 0;    /* TODO */
+      flags = O_APPEND;    /* TODO */
       break;
     case OP_LESSGREAT: /* <> */
-      flags = 0;       /* TODO */
+      flags = O_RDWR | O_CREAT;       /* TODO */
       break;
     case OP_CLOBBER: /* >| */
-      flags = 0;     /* TODO */
+      flags = O_TRUNC;     /* TODO */
       break;
   }
   return flags;
@@ -137,7 +143,9 @@ move_fd(int src, int dst)
 {
   if (src == dst) return dst;
   /* TODO move src to dst */
+  dst = src;
   /* TODO close src */
+  close(src);
   return dst;
 }
 
@@ -385,9 +393,10 @@ run_command_list(struct command_list *cl)
     int stdin_override = pipeline_fds[STDIN_FILENO];
 
     /* IF we are a pipeline command, create a pipe for our stdout */
-    if (/* TODO */ 0) {
+    if (is_pl) {
       /* TODO create a new pipe with pipeline_fds */
       /* XXX man 2 pipe */
+      pipe(pipeline_fds);
     } else {
       pipeline_fds[0] = -1;
       pipeline_fds[1] = -1;
@@ -405,7 +414,7 @@ run_command_list(struct command_list *cl)
     /* Fork if:
      *   Not a builtin, OR,
      *   Is a builtin, but isn't a foreground command */
-    if (!builtin || !is_fg) {
+    if (!builtin || (builtin && !is_fg)) {
       /* TODO */
       child_pid = fork(); 
     }

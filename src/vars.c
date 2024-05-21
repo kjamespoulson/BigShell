@@ -38,7 +38,7 @@ is_valid_varname(char const *name)
    *
    * You'll most definitely want to use functions from: ctype.h(0P)
    */
-  errno = ENOSYS; /* Not implemented */
+//  errno = ENOSYS; /* Not implemented */
   return -1;
 }
 
@@ -54,7 +54,7 @@ vars_is_valid_varname(char const *name)
 {
   /* TODO: Implement argument validation before tail-calling internal
    * is_valid_varname() function. */
-  errno = ENOSYS;
+//  errno = ENOSYS;
   return -1;
 }
 

@@ -45,7 +45,6 @@ signal_init(void)
   int tou = sigaction(SIGTTOU, &ignore_action, &old_sigttou);
   int ret_val = stop + inter + tou;
   if (!ret_val) return ret_val;
-  //errno = ENOSYS; /* not implemented */
   return -1;
 }
 
@@ -61,7 +60,6 @@ signal_enable_interrupt(int sig)
   /* TODO set the signal disposition for signal to interrupt  */
   int change = sigaction(sig, &interrupt_action, NULL);
   if (!change) return change;
-  //errno = ENOSYS; /* not implemented */
   return -1;
 }
 
@@ -75,9 +73,8 @@ int
 signal_ignore(int sig)
 {
   /* TODO set the signal disposition for signal back to its old state */
-  //int reset = sigaction();
-  //errno = ENOSYS; /* not implemented */
-  return -1;
+  int return_this = sigaction(sig, &ignore_action, NULL);
+  return return_this;
 }
 
 /** Restores signal dispositions to what they were when bigshell was invoked
@@ -98,6 +95,5 @@ signal_restore(void)
   int tou = sigaction(SIGTTOU, &old_sigttou, NULL);
   int ret_val = stop + inter + tou;
   if (!ret_val) return ret_val;
-  //errno = ENOSYS; /* not implemented */
   return -1;
 }
