@@ -164,6 +164,7 @@ wait_on_bg_jobs()
           jobs_remove_gid(pgid);
           job_count = jobs_get_joblist_size();
           jobs = jobs_get_joblist();
+          break;
         }
         return -1; /* Other errors are not ok */
       }

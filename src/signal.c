@@ -44,7 +44,7 @@ signal_init(void)
   int inter = sigaction(SIGINT, &ignore_action, &old_sigint);
   int tou = sigaction(SIGTTOU, &ignore_action, &old_sigttou);
   int ret_val = stop + inter + tou;
-  if (!ret_val) return ret_val;
+  if (ret_val == 0) return ret_val;
   return -1;
 }
 
@@ -59,8 +59,7 @@ signal_enable_interrupt(int sig)
 {
   /* TODO set the signal disposition for signal to interrupt  */
   int change = sigaction(sig, &interrupt_action, NULL);
-  if (!change) return change;
-  return -1;
+  return change;
 }
 
 /** ignore a signal
@@ -94,6 +93,6 @@ signal_restore(void)
   int inter = sigaction(SIGINT, &old_sigint, NULL);
   int tou = sigaction(SIGTTOU, &old_sigttou, NULL);
   int ret_val = stop + inter + tou;
-  if (!ret_val) return ret_val;
+  if (ret_val == 0) return ret_val;
   return -1;
 }
