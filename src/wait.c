@@ -56,7 +56,7 @@ wait_on_fg_gid(pid_t pgid)
   for (;;) {
     /* Wait on ALL processes in the process group 'pgid' */
     int status;
-    pid_t res = waitpid(pgid, &status, 0);
+    pid_t res = waitpid(-pgid, &status, 0);
     if (res < 0) {
       /* Error occurred (some errors are ok, see below)
        *
@@ -147,7 +147,7 @@ wait_on_bg_jobs()
        * XXX make sure to do a nonblocking wait!
        */
       int status;
-      pid_t pid = waitpid(pgid, &status, WNOHANG);
+      pid_t pid = waitpid(-pgid, &status, WNOHANG | WUNTRACED);
       if (pid == 0) {
         /* Unwaited children that haven't exited */
         break;
