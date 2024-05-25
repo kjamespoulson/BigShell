@@ -113,7 +113,7 @@ get_io_flags(enum io_operator io_op)
       break;
     case OP_GREATAND: /* >& */
     case OP_GREAT:    /* > */
-      flags = O_RDONLY | O_CREAT;      /* TODO */
+      flags = O_RDWR | O_CREAT;      /* TODO */
       break;
     case OP_DGREAT: /* >> */
       flags = O_APPEND;    /* TODO */
@@ -141,11 +141,13 @@ get_io_flags(enum io_operator io_op)
 static int
 move_fd(int src, int dst)
 {
+  //printf("Moving src %d to dst %d\n", src, dst);
   if (src == dst) return dst;
   /* TODO move src to dst */
-  dst = src;
+  dup2(src, dst);
   /* TODO close src */
   close(src);
+  gprintf("dst: %d\n", dst);
   return dst;
 }
 
@@ -295,6 +297,7 @@ do_io_redirects(struct command *cmd)
          *
          * XXX What is n? Look for it in `struct io_redir->???` (parser.h)
          */
+        close(r->io_number);
       } else {
         /* The filename is interpreted as a file descriptor number to
          * redirect to. For example, 2>&1 duplicates file descriptor 1
@@ -316,6 +319,7 @@ do_io_redirects(struct command *cmd)
                                  downcasting */
         ) {
           /* TODO duplicate src to dst. */
+          dup2(src, r->io_number);
         } else {
           /* XXX Syntax error--(not a valid number)--we can "recover" by
            * attempting to open a file instead. That's what bash does.
@@ -334,9 +338,17 @@ do_io_redirects(struct command *cmd)
        * XXX Note: you can supply a mode to open() even if you're not creating a
        * file. it will just ignore that argument.
        */
+      int file = open(r->filename, flags, 0777);
+      gprintf("Filename: %s", r->filename);
+      gprintf("Opened file: %d\n", file);
+      gprintf("r->io_number: %d\n", r->io_number);
 
       /* TODO Move the opened file descriptor to the redirection target */
       /* XXX use move_fd() */
+      int result = move_fd(file, r->io_number);
+      gprintf("Opened file: %d\n", file);
+      gprintf("r->io_number: %d\n", r->io_number);
+      gprintf("Result: %d\n", result);
     }
     if (0) {
     err: /* TODO Anything that can fail should jump here. No silent errors!!! */
