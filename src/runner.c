@@ -339,16 +339,11 @@ do_io_redirects(struct command *cmd)
        * file. it will just ignore that argument.
        */
       int file = open(r->filename, flags, 0777);
-      gprintf("Filename: %s", r->filename);
-      gprintf("Opened file: %d\n", file);
-      gprintf("r->io_number: %d\n", r->io_number);
+      if (file < 0) goto err;
 
       /* TODO Move the opened file descriptor to the redirection target */
       /* XXX use move_fd() */
       int result = move_fd(file, r->io_number);
-      gprintf("Opened file: %d\n", file);
-      gprintf("r->io_number: %d\n", r->io_number);
-      gprintf("Result: %d\n", result);
     }
     if (0) {
     err: /* TODO Anything that can fail should jump here. No silent errors!!! */
