@@ -122,7 +122,7 @@ get_io_flags(enum io_operator io_op)
       flags = O_RDWR | O_CREAT;       /* TODO */
       break;
     case OP_CLOBBER: /* >| */
-      flags = O_TRUNC;     /* TODO */
+      flags = O_RDWR | O_CREAT | O_TRUNC;     /* TODO */
       break;
   }
   return flags;
