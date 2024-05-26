@@ -116,7 +116,7 @@ get_io_flags(enum io_operator io_op)
       flags = O_RDWR | O_EXCL | O_CREAT;      /* TODO */
       break;
     case OP_DGREAT: /* >> */
-      flags = O_APPEND;    /* TODO */
+      flags = O_RDWR | O_CREAT | O_APPEND;    /* TODO */
       break;
     case OP_LESSGREAT: /* <> */
       flags = O_RDWR | O_CREAT;       /* TODO */
