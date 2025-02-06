@@ -158,9 +158,8 @@ wait_on_bg_jobs()
           errno = 0;
           if (WIFEXITED(status)) {
             fprintf(stderr, "[%jd] Done\n", (intmax_t)jid);
-          } else if (WIFSIGNALED(status)) {
-            if (WIFSTOPPED(status)) fprintf(stderr, "[%jd] Stopped\n", (intmax_t)jid); 
-            else fprintf(stderr, "[%jd] Terminated\n", (intmax_t)jid);
+          } else if (WIFSIGNALED(status)) {             
+            fprintf(stderr, "[%jd] Terminated\n", (intmax_t)jid);
           } 
           jobs_remove_gid(pgid);
           job_count = jobs_get_joblist_size();
