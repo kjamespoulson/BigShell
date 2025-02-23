@@ -1,21 +1,3 @@
 BigShell
 ========
-The provided makefile can be used to build your project,
- 
-.. code-block:: console
-
-   $ make          # Equivalent to `make all`
-   $ make all      # Equivalent to `make release debug` (default target)
-   $ make release  # Release build in release/ -- no debugging messages
-   $ make debug    # Debug build in debug/ -- includes assertions and debugging messages
-   $ make clean    # Removes build files (release/ and debug/ directories)
-
-Though there are several files in :file:`src/` you will only need to modify a few files to complete the assignment. Specifically:
-
-* builtins.c
-* signal.c
-* vars.c
-* runner.c
-* wait.c
-
-A reference implementation is provided in :file:`reference/bigshell`.
+BigShell is a fully-funtional shell written in the C language, capable of process management, file management and executing built-in (cd, ps, exit, etc.) and external commands (neovim, gcloud, etc.). Modeled after Bash, it contains the standard POSIX utilities.
